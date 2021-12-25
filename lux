@@ -1,0 +1,16 @@
+<?php
+
+require_once __DIR__ . "/vendor/autoload.php";
+
+use 
+    Symfony\Component\Console\Application,
+    Lux\Providers\AppProvider;
+
+
+$provider = new AppProvider(new Application);
+
+function getName() {
+    return "Lux";
+}
+
+$provider->boot();
