@@ -2,100 +2,101 @@
 
 namespace Lux\Providers;
 
-
 use
     Symfony\Component\Console\Application,
+    Lux\Factory\FactoryProvider,
+    Lux\Factory\FactoryCommand,
     Symfony\Component\Finder\Finder;
-use Symfony\Component\Console\Logger\ConsoleLogger;
 
+/**
+ * Class Provider
+ * @method mixed register()
+ * 
+ * @see \Lux\Providers\Provider
+ */
 abstract class Provider
 {
-    protected Finder $commands;
 
-    protected Finder $providers;
+    /**
+     * @method mixed register()
+     */
 
-    protected array $globalFunctions = [];
+    protected Application $app;
 
-    protected function __init(): void
+    /**
+     * includes services containers
+     *
+     * @var array<array<object>>
+     */
+    private array $containers = [];
+
+    /**
+     * Register the service container
+     *
+     * @return mixed
+     */
+    abstract function boot();
+
+    public function run(Application $app): void
     {
-        try {
-            $this->commands = (new Finder())
-                ->in(dirname(__DIR__, 1) . '/Commands')
-                ->files()
-                ->name('*Command.php');
+        $this->app = $app;
 
-            $this->providers = (new Finder())
-                ->in(__DIR__)
-                ->files()
-                ->notName(['AppProvider.php', 'Provider.php'])
-                ->name('*.php');
-        } catch (\Throwable $ex) {
-            file_put_contents('php://output', "{$ex->getMessage()}\n Line {$ex->getLine()} from {$ex->getFile()}");
-            exit;
-        }
-    }
+        $factoryProvider = new FactoryProvider();
+        $factoryCommand = new FactoryCommand();
 
-    protected function initProviders(): void
-    {
-        foreach ($this->providers as $file) {
-            $reflection = new \ReflectionClass("Lux\\Providers\\{$file->getBasename('.php')}");
+        $providers = require_once dirname(__DIR__, 2) . '/config/app.php';
 
-            if ($reflection->hasMethod('boot')) {
-                $parametersConstructor = $reflection->getConstructor() ?: [];
-                $parameters = $reflection->getMethod('boot')->getParameters();
+        foreach ($providers['providers'] as $provider) {
+            $providerInstance = $factoryProvider->create($provider);
 
-                if ($parametersConstructor)
-                    $parametersConstructor = $this->getParameters($parametersConstructor);
-                if ($parameters)
-                    $parameters = $this->getParameters($parameters);
-
-                $reflection->getMethod('boot')->invokeArgs($reflection->newInstance(...$parametersConstructor), [$this]);
+            if (method_exists($providerInstance, 'register')) {
+                $providerInstance->register();
             }
 
-            if ($reflection->hasMethod('register')) {
-                $parametersConstructor = $reflection->getConstructor() ?: [];
-                $parameters = $reflection->getMethod('register')->getParameters();
-                if ($parameters) {
-                    $reflection->getMethod('register')->invokeArgs($reflection->newInstance(...$parametersConstructor), [$this, ...$parameters]);
-                } else
-                    $reflection->getMethod('register')->invoke($reflection->newInstance(...$parametersConstructor));
-            }
-        }
-    }
-
-    public function initCommands(Application $app): void
-    {
-        $commands = [];
-        foreach ($this->commands as $file) {
-            $command = "Lux\\Commands\\{$file->getBasename('.php')}";
-            $commands[] = new $command;
+            $providerInstance->boot();
         }
 
-        $app->addCommands($commands);
+        $commands = (new Finder)
+            ->in(dirname(__DIR__, 1) . '/Commands')
+            ->files()
+            ->name('*Command.php');
+
+
+        $cms = [];
+        foreach ($commands as $command) {
+            $className = 'Lux\Commands\\' . $command->getBasename('.php');
+            $cms[] = $factoryCommand->create($className, $this->containers);
+        }
+
+        $this->app->addCommands($cms);
+        $this->app->run();
     }
 
     /**
-     * Undocumented function
+     * Resolve a container with the instance already created
      *
-     * @param string $name
-     * @param callable\Closure $func
+     * @param object $obj
+     * @param callable|Closure $callable
      * @return void
      */
-    public function bind(string $name, $function)
+    public function instance(object $obj, $callable)
     {
-        $function = !($function instanceof \Closure) ? \Closure::fromCallable($function) : $function;
+        $className = get_class($obj);
+        $instance = $callable($obj, $this);
+        $hasInstance = isset($this->containers) && in_array($className, $this->containers);
 
-        $this->globalFunctions[$name] = \Closure::bind($function, $this);
+        if (!$hasInstance) {
+            $this->containers[$className] = $instance;
+        }
     }
 
-    /**
-     * get parameters 
-     *
-     * @param \ReflectionParameter[] $parameters
-     * @return void
-     */
-    private function getParameters($parameters)
+    public function bind(string $className, $callable)
     {
-        return $parameters;
+        $instance = $callable($this);
+        $hasInstance = isset($this->containers) && in_array($className, $this->containers);
+
+        if (!$hasInstance) {
+            $this->containers[$className] = $instance;
+        }
     }
 }

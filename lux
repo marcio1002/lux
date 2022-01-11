@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * @author Marcio1002 <marcioalemao1999@yahoo.com>
+ * @version 1.0.0
+ * @copyright 2022 Marcio Alemão
+ */
+
 require_once __DIR__ . "/vendor/autoload.php";
 
 use 
@@ -7,10 +13,6 @@ use
     Lux\Providers\AppProvider;
 
 
-$provider = new AppProvider(new Application);
+$provider = new AppProvider();
 
-function getName() {
-    return "Lux";
-}
-
-$provider->boot();
+$provider->run(new Application());

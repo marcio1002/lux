@@ -2,21 +2,36 @@
 
 namespace Lux\Providers;
 
-use Dotenv\Dotenv;
+use 
+    Lux\Providers\Provider,
+    Dotenv\Dotenv,
+    Symfony\Component\Finder\Finder;
 
-class EnvProvider
+class EnvProvider extends Provider
 {
 
-    public function boot($app)
+    public function __construct( Finder $fs, int $priority = 0)
     {
-        Dotenv::createMutable(dirname(__DIR__, 2))->load();
+        
     }
 
-    public function register($app)
+    public function boot()
+    {
+        Dotenv::createMutable(dirname(__DIR__, 2))->load();
+        
+        $this->instance(new Finder, function(Finder $fs, $app) {
+            /**
+             * @var \Lux\Providers\Provider $app 
+             */
+            return $fs->in(__DIR__ . '/');
+        });
+    }
+
+    public function register()
     {
         $system = [
             'linux' => 'echo "/home/$USER"',
-            'windows' => 'powershell.exe Get-Location',
+            'windows' => 'powershell.exe Get-Location ~',
             'mac' => 'echo "/home/$USER"'
         ];
 
