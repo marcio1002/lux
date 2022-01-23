@@ -4,6 +4,8 @@ namespace Lux\Commands;
 
 
 use
+    Lux\Traits\QuestionTrait,
+    Lux\Traits\MessageTrait,
     Symfony\Component\Console\Command\Command,
     Symfony\Component\Console\Input\InputInterface,
     Symfony\Component\Console\Output\OutputInterface,
@@ -12,44 +14,40 @@ use
 
 class ToMp3Command extends Command
 {
+    use 
+        QuestionTrait,
+        MessageTrait;
+
     protected static $defaultName = 'to:mp3';
-    protected static $defaultDescription = 'Extrai audio de im vídeo.';
+    protected static $defaultDescription = 'Extrai audio de um vídeo.';
 
     public function configure(): void
     {
         $this
-            ->addArgument('video', InputArgument::REQUIRED, 'Arquivo de vídeo')
-            ->addOption('dir', 'd', InputArgument::OPTIONAL, 'Diretório de destino');
-    }
-
-    private function question(string $message, InputInterface $input, OutputInterface $output, array $options = []): string
-    {
-        $helper = $this->getHelper('question');
-        $question = new Question("<info>$message</info>\n>");
-
-
-        foreach (array_keys($options) as $key) {
-            switch ($key) {
-                case 'validator':
-                    $question->setValidator($options['validator']);
-                    break;
-
-                case 'autocomplete_callback':
-                    $question->setAutocompleterCallback($options['autocomplete_callback']);
-                    break;
-
-                case 'autocomplete_values':
-                    $question->setAutocompleterValues($options['autocomplete_values']);
-                    break;
-            }
-        }
-
-
-        return $helper->ask($input, $output, $question);
+            ->addArgument('file', InputArgument::REQUIRED, 'Arquivo de entrada')
+            ->addOption('dir', 'd', InputArgument::OPTIONAL, 'Diretório de destino')
+            ->addOption('filename', 'f', InputArgument::OPTIONAL, 'Nome do arquivo de saída');
     }
 
     public function execute(InputInterface $input, OutputInterface $output)
     {
+        $file = $input->getArgument('file');
+        $filename = $input->getOption('filename') ?? pathinfo($file, PATHINFO_FILENAME);
+        $dir = '';
+
+        if($input->hasParameterOption(['--dir', '-d'], true)) {
+            $dir = $input->getOption('dir');
+        } else {
+            $dir = trim($this->questionPath('Especifique o caminho de destino ? ', $input, $output));
+        }
+
+        $destination = "$dir/$filename.mp3";
+
+        $output->writeln($this->info('Extraindo audio...'));
+
+        `ffmpeg -i '$file' -vn -acodec libmp3lame -ab 128k '$destination'`;
         
+        $output->writeln($this->success('Concluído!'));
+        return Command::SUCCESS;
     }
 }

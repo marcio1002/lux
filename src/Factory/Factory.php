@@ -25,7 +25,7 @@ abstract class Factory {
         $constructor = $reflection->getConstructor();
         $className = $reflection->getName();
 
-        $configProviders = require_once dirname(__DIR__, 2) . '/config/providers.php';
+        $configProviders = require_once dirname(__DIR__, 2) . '/config/app.php';
         $configParams = $configProviders[$className] ?? [];
 
         if (!empty($constructor)) {
