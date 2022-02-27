@@ -2,7 +2,9 @@
 
 namespace Lux\Providers;
 
-use Lux\Providers\Provider;
+use
+    Lux\Providers\Provider,
+    Dotenv\Dotenv;
 
 class EnvProvider extends Provider
 {
@@ -30,5 +32,6 @@ class EnvProvider extends Provider
 
     public function boot()
     {
+        Dotenv::createMutable(dirname(__DIR__, 2))->load();
     }
 }
