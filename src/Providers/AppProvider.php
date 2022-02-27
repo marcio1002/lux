@@ -2,9 +2,7 @@
 
 namespace Lux\Providers;
 
-use
-  Lux\Providers\Provider,
-  Symfony\Component\Console\Application;
+use Lux\Providers\Provider;
 
 class AppProvider extends Provider
 {

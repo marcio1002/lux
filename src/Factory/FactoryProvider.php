@@ -12,6 +12,11 @@ class FactoryProvider extends Factory
     public function create(...$params): Provider
     {      
         $className = $params[0];
-        return $this->handlerClass($className);
+
+        return $this->handlerClass(
+                $className,
+                '',
+                ['container' => $params[1]]
+            );
     }
 }

@@ -2,31 +2,10 @@
 
 namespace Lux\Providers;
 
-use 
-    Lux\Providers\Provider,
-    Dotenv\Dotenv,
-    Symfony\Component\Finder\Finder;
+use Lux\Providers\Provider;
 
 class EnvProvider extends Provider
 {
-
-    public function __construct( Finder $fs, int $priority = 0)
-    {
-        
-    }
-
-    public function boot()
-    {
-        Dotenv::createMutable(dirname(__DIR__, 2))->load();
-        
-        $this->instance(new Finder, function(Finder $fs, $app) {
-            /**
-             * @var \Lux\Providers\Provider $app 
-             */
-            return $fs->in(__DIR__ . '/');
-        });
-    }
-
     public function register()
     {
         $system = [
@@ -37,14 +16,19 @@ class EnvProvider extends Provider
 
         $os = strtolower(PHP_OS);
 
-        if(isset($system[$os])) {
+        if (in_array($os, array_keys($system))) {
             $command = $system[$os];
         } else {
             $command = 'pwd ~';
         }
 
-        $userPath = trim(shell_exec($command));
+        if (isset($command))
+            $userPath = trim(shell_exec($command));
 
         $_ENV['PATH_USER'] = $userPath;
+    }
+
+    public function boot()
+    {
     }
 }

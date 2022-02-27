@@ -16,17 +16,12 @@ class FactoryCommand extends Factory {
      */
     public function create(...$params): Command
     {
-        [$class, $values] = $params;
-        $method = $params[2] ?? null;
+        $class = array_shift($params);
 
-        $construct = (new \ReflectionClass($class))->getConstructor();
-
-        if($construct)
-            $params = $this->getParams($class, '__construct', $values);
-
-        if($method)
-            $params = $this->getParams($class, $method, $values);
-
-        return new $class(...$params ?? []);
+        return $this->handlerClass(
+            $class,
+            '',
+            ...$params
+        );
     }
 }

@@ -11,6 +11,7 @@ use
     Symfony\Component\Console\Output\OutputInterface,
     Symfony\Component\Console\Input\InputArgument,
     Symfony\Component\Console\Question\Question;
+use Symfony\Component\Finder\Finder;
 
 class ToMp3Command extends Command
 {
@@ -20,6 +21,15 @@ class ToMp3Command extends Command
 
     protected static $defaultName = 'to:mp3';
     protected static $defaultDescription = 'Extrai audio de um vídeo.';
+
+    public function __construct(?Finder $fs = null)
+    {
+        foreach ($fs->files()->name('.env') as $file) {
+            echo $file->getContents() . PHP_EOL;
+        }
+
+        parent::__construct();
+    }
 
     public function configure(): void
     {

@@ -10,9 +10,9 @@ require_once __DIR__ . "/vendor/autoload.php";
 
 use 
     Symfony\Component\Console\Application,
-    Lux\Providers\AppProvider;
+    Lux\Providers\Container;
 
 
-$provider = new AppProvider();
+$container = Container::getInstance();
 
-$provider->run(new Application());
+$container->run(new Application());
