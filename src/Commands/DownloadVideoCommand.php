@@ -59,7 +59,7 @@ class DownloadVideoCommand extends Command
 
         $destination = $dir . DIRECTORY_SEPARATOR . "$filename.mp4";
 
-        `ffmpeg -protocol_whitelist file,tls,http,https,tcp -i '$url' -c copy -bsf:a aac_adtstoasc '$destination' -hide_banner`;
+        `ffmpeg -protocol_whitelist file,tls,http,https,tcp,crypto -i '$url' -c copy -bsf:a aac_adtstoasc '$destination' -hide_banner`;
 
         $output->writeln($this->success('Concluído!'));
 
