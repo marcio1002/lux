@@ -4,7 +4,9 @@ namespace Lux\Commands;
 
 use
     Lux\Traits\QuestionTrait,
-    Lux\Traits\MessageTrait,
+    Lux\Traits\MessageTrait;
+
+use
     Symfony\Component\Console\Command\Command,
     Symfony\Component\Console\Input\InputInterface,
     Symfony\Component\Console\Output\OutputInterface,
@@ -17,7 +19,7 @@ class DownloadVideoCommand extends Command
         MessageTrait;
 
     protected static $defaultName = 'video:down';
-    protected static $defaultDescription = 'Baixa vídeos em HLS.';
+    protected static $defaultDescription = 'Baixa vídeos em vários protocolos.';
 
     protected function configure(): void
     {
@@ -59,7 +61,7 @@ class DownloadVideoCommand extends Command
 
         $destination = $dir . DIRECTORY_SEPARATOR . "$filename.mp4";
 
-        `ffmpeg -protocol_whitelist file,tls,http,https,tcp,crypto -i '$url' -c copy -bsf:a aac_adtstoasc '$destination' -hide_banner`;
+        `ffmpeg -protocol_whitelist file,tls,http,https,tcp,crypto,ftp -i '$url' -c copy -bsf:a aac_adtstoasc '$destination' -hide_banner`;
 
         $output->writeln($this->success('Concluído!'));
 

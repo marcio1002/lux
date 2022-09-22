@@ -2,9 +2,9 @@
 
 namespace Lux\Providers;
 
-use Lux\Providers\Provider,
-    Symfony\Component\Finder\Finder;
+use Lux\Providers\Provider;
 
+use Symfony\Component\Finder\Finder;
 
 class CommandProvider extends Provider
 {

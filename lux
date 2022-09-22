@@ -15,4 +15,4 @@ use
 
 $container = Container::getInstance();
 
-$container->run(new Application());
+$container->run(new Application('lux', '1.1.1'));

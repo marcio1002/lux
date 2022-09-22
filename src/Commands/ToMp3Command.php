@@ -5,7 +5,9 @@ namespace Lux\Commands;
 
 use
     Lux\Traits\QuestionTrait,
-    Lux\Traits\MessageTrait,
+    Lux\Traits\MessageTrait;
+
+use
     Symfony\Component\Console\Command\Command,
     Symfony\Component\Console\Input\InputInterface,
     Symfony\Component\Console\Output\OutputInterface,

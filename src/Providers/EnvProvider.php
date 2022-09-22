@@ -18,7 +18,7 @@ class EnvProvider extends Provider
 
         $os = strtolower(PHP_OS);
 
-        if (in_array($os, array_keys($system))) {
+        if (array_key_exists($os, $system)) {
             $command = $system[$os];
         } else {
             $command = 'pwd ~';

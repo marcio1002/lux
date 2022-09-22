@@ -3,22 +3,34 @@
 namespace Lux\Commands;
 
 use
-
     Lux\Traits\QuestionTrait,
-    Lux\Traits\MessageTrait,
+    Lux\Traits\MessageTrait;
+
+use
     Symfony\Component\Console\Command\Command,
     Symfony\Component\Console\Input\InputInterface,
     Symfony\Component\Console\Output\OutputInterface,
-    Symfony\Component\Console\Input\InputArgument;
+    Symfony\Component\Console\Input\InputArgument,
+    Symfony\Component\Finder\Finder;
 
 class TitleVideoCommand extends Command
 {
+    private Finder $finder;
+
+    public function __construct(Finder $finder)
+    {
+        $this->finder = $finder;
+
+        parent::__construct();
+    }
+
     use
         MessageTrait,
         QuestionTrait;
 
     protected static $defaultName = 'video:title';
     protected static $defaultDescription = 'Altera o título do vídeo.';
+
 
     protected function configure(): void
     {
@@ -39,11 +51,11 @@ class TitleVideoCommand extends Command
 
         $dir = '';
 
-        if ($input->hasParameterOption(['--destination', '-d'], true)) {
-            $dir = $input->getOption('destination');
-        } else {
+        if (!$input->hasParameterOption(['--destination', '-d'], true))
             $dir = trim($this->questionPath('Especifique o caminho de destino ? ', $input, $output));
-        }
+        else 
+            $dir = $input->getOption('destination');
+        
 
         if (preg_match('/^(~)/', $dir, $match)) {
             $dir = preg_replace('/^(~)/', $_ENV['PATH_USER'], $dir);
@@ -57,8 +69,6 @@ class TitleVideoCommand extends Command
             $output->writeln($this->error('Diretório inválido'));
             return Command::INVALID;
         }
-
-
 
         $output->writeln($this->info('Alterando o título do vídeo...'));
 

@@ -7,7 +7,8 @@ use
     Symfony\Component\Console\Output\OutputInterface,
     Symfony\Component\Console\Question\Question;
 
-trait QuestionTrait {
+trait QuestionTrait
+{
     protected function question(string $message, InputInterface $input, OutputInterface $output, array $options = []): string
     {
         $helper = $this->getHelper('question');

@@ -3,6 +3,7 @@
 namespace Lux\Factory;
 
 use Lux\Factory\Factory;
+
 use Symfony\Component\Console\Command\Command;
 
 class FactoryCommand extends Factory {
