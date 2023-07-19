@@ -62,7 +62,7 @@ class TitleVideoCommand extends Command
         }
 
         if (!is_dir($dir) && strtolower($this->question("Diretório <fg=yellow>$dir</> não existe deseja cria-lo? [S/N] ", $input, $output) == 's')) {
-            shell_exec("mkdir -p $dir");
+            system("mkdir -p $dir");
         }
 
         if (!is_dir($dir)) {
