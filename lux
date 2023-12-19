@@ -2,17 +2,20 @@
 
 /**
  * @author Marcio1002 <marcioalemao1999@yahoo.com>
- * @version 1.0.0
+ * @version 1.1.1
  * @copyright 2022 Marcio Alemão
  */
 
 require_once __DIR__ . "/vendor/autoload.php";
 
-use 
+use
     Symfony\Component\Console\Application,
     Lux\Providers\Container;
 
 
 $container = Container::getInstance();
 
-$container->run(new Application('lux', '1.1.1'));
+$container->run(new Application(
+    name: 'lux',
+    version: '1.1.1'
+));

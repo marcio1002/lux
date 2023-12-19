@@ -4,25 +4,38 @@ namespace Lux\Factory;
 
 use Lux\Factory\Factory;
 
-use Symfony\Component\Console\Command\Command;
+use
+    Symfony\Component\Finder\Finder,
+    Symfony\Component\Console\Command\Command;
 
-class FactoryCommand extends Factory {
+class FactoryCommand extends Factory
+{
 
     /**
-     * Undocumented function
-     *
-     * @param $command
-     * @param $params
-     * @return Command
+     * Load command classes
+     * 
+     * @param array<mixed> $params
+     * @return Array<Command>
      */
-    public function create(...$params): Command
+    public function create(...$params): array
     {
-        $class = array_shift($params);
+        $cms = [];
 
-        return $this->handlerClass(
-            $class,
-            '',
-            ...$params
-        );
+        $commands = (new Finder)
+            ->in(dirname(__DIR__, 1) . '/Commands')
+            ->files()
+            ->name('*Command.php');
+
+        foreach ($commands as $command) {
+            $className = 'Lux\\Commands\\' . $command->getBasename('.php');
+
+            $cms[] = $this->handlerClass(
+                class: $className,
+                method: '',
+                paramsValues: $params
+            );
+        }
+
+        return $cms;
     }
 }

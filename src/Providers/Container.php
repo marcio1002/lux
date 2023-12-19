@@ -22,10 +22,6 @@ class Container
      */
     private array $services = [];
 
-    private function __construct()
-    {
-    }
-
     public static function getInstance(): Container
     {
         if (!isset(self::$instance)) {
@@ -38,35 +34,13 @@ class Container
     public function run(Application $app): void
     {
         $this->command = $app;
-
         $factoryProvider = new FactoryProvider();
         $factoryCommand = new FactoryCommand();
 
-        $appConfig = require dirname(__DIR__, 2) . '/config/app.php';
+        $factoryProvider->create($this);
 
-        foreach ($appConfig['providers'] as $provider) {
-            $providerInstance = $factoryProvider->create($provider, $this);
-
-            if (method_exists($providerInstance, 'register')) {
-                $providerInstance->register();
-            }
-
-            $providerInstance->boot();
-        }
-
-        $commands = (new Finder)
-            ->in(dirname(__DIR__, 1) . '/Commands')
-            ->files()
-            ->name('*Command.php');
-
-
-        $cms = [];
-        foreach ($commands as $command) {
-            $className = 'Lux\Commands\\' . $command->getBasename('.php');
-            $cms[] = $factoryCommand->create($className, $this->services);
-        }
-
-        $this->command->addCommands($cms);
+        $class_commands = $factoryCommand->create($this->services);
+        $this->command->addCommands($class_commands);
         $this->command->run();
     }
 
@@ -77,7 +51,7 @@ class Container
      * @param callable|Closure $callable
      * @return void
      */
-    public function instance(object $obj, $callable)
+    public function instance(object $obj, $callable): void
     {
         $className = get_class($obj);
         $instance = $callable($obj, $this);
@@ -85,19 +59,33 @@ class Container
         $this->services[$className] = $instance;
     }
 
-    public function bind(string $className, $callable)
+    /**
+     * Resolve a container with the class name
+     *
+     * @param string $className 
+     * @param callable|Closure $callable
+     * @return void 
+     */
+    public function bind(string $className, $callable): void
     {
         $instance = $callable($this);
 
         $this->services[$className] = $instance;
     }
 
-    public function singleton(string $className, $callable)
+    /**
+     * Resolve a container with class name as singleton
+     *
+     * @param string $className 
+     * @param callable|Closure $callable
+     * @return void 
+     */
+    public function singleton(string $className, $callable): void
     {
         $instance = $callable($this);
-        $hasInstance = isset($this->services) && in_array($className, $this->services);
+        $doesNotHaveInstance = !array_key_exists($className, $this->services);
 
-        if (!$hasInstance) {
+        if ($doesNotHaveInstance) {
             $this->services[$className] = $instance;
         }
     }

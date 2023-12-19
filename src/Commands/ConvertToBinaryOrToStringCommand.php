@@ -15,7 +15,7 @@ class ConvertToBinaryOrToStringCommand extends Command
     use MessageTrait;
 
     protected static $defaultName = 'to:bin';
-    protected static $defaultDescription = 'Baixa vídeos em vários protocolos.';
+    protected static $defaultDescription = 'Converte string para binário ou binário para string.';
 
     protected function configure()
     {
@@ -36,21 +36,31 @@ class ConvertToBinaryOrToStringCommand extends Command
         }
 
         $to_convert = $input->getArgument('to_convert');
+        $binary = "";
+        $word = "";
 
-        if ($input->hasParameterOption(['--bin', '-b'])) {
-            $to_bin = decbin($to_convert);
+        if ($input->hasParameterOption(['--bin', '-b'], true)) {
+            for ($i = 0; $i < strlen($to_convert); $i++) {
+                $ascii = ord($to_convert[$i]);
+                $binary .= decbin($ascii);
+            }
 
             $output->writeln('Em binário: ');
-            $output->writeln($this->info($to_bin));
+            $output->writeln($this->info($binary));
+            return self::SUCCESS;
         }
 
-        if ($input->hasParameterOption(['--str', '-s'])) {
-            $to_str = bindec($to_convert);
+        if ($input->hasParameterOption(['--str', '-s'], true)) {
+            for ($i = 0; $i < strlen($to_convert); $i+=8) {
+                $bin = substr($to_convert, $i, 8);
+                $decimal = bindec($bin);
+                $word .= sprintf("%c", $decimal);
+            }
 
             $output->writeln('Em letra: ');
-            $output->writeln($this->info($to_str));
+            $output->writeln($this->info($word));
+            
+            return self::SUCCESS;
         }
-
-        return self::SUCCESS;
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Lux\Commands;
 
+use Lux\Traits\DirectoryTrait;
 use
     Lux\Traits\QuestionTrait,
     Lux\Traits\MessageTrait;
@@ -15,6 +16,11 @@ use
 
 class TitleVideoCommand extends Command
 {
+    use
+        MessageTrait,
+        QuestionTrait,
+        DirectoryTrait;
+
     private Finder $finder;
 
     public function __construct(Finder $finder)
@@ -24,15 +30,11 @@ class TitleVideoCommand extends Command
         parent::__construct();
     }
 
-    use
-        MessageTrait,
-        QuestionTrait;
-
     protected static $defaultName = 'video:title';
     protected static $defaultDescription = 'Altera o título do vídeo.';
 
 
-    protected function configure(): void
+    protected function configure()
     {
         $this
             ->addArgument('file', InputArgument::REQUIRED, 'Arquivo de entrada')
@@ -51,19 +53,13 @@ class TitleVideoCommand extends Command
 
         $dir = '';
 
-        if (!$input->hasParameterOption(['--destination', '-d'], true))
-            $dir = trim($this->questionPath('Especifique o caminho de destino ? ', $input, $output));
-        else 
+        if ($input->hasParameterOption(['--destination', '-d'], true))
             $dir = $input->getOption('destination');
-        
+        else
+            $dir = trim($this->questionPath('Onde deseja salvar o vídeo ?', $input, $output));
 
-        if (preg_match('/^(~)/', $dir, $match)) {
-            $dir = preg_replace('/^(~)/', $_ENV['PATH_USER'], $dir);
-        }
-
-        if (!is_dir($dir) && strtolower($this->question("Diretório <fg=yellow>$dir</> não existe deseja cria-lo? [S/N] ", $input, $output) == 's')) {
-            system("mkdir -p $dir");
-        }
+        $dir = $this->homeDirFullPath($dir);
+        $this->questionDir($dir, $input, $output);
 
         if (!is_dir($dir)) {
             $output->writeln($this->error('Diretório inválido'));
@@ -79,6 +75,7 @@ class TitleVideoCommand extends Command
         `ffmpeg -i '$file' -map_metadata -1 -metadata title='$title' -c:v copy -c:a copy '$destination'`;
 
         $output->writeln($this->success('Concluído'));
+        
         return Command::SUCCESS;
     }
 }

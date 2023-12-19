@@ -23,7 +23,7 @@ class ServeCommand extends Command
     protected static $defaultName = 'serve';
     protected static $defaultDescription = 'Inicia uma conexão de um servidor.';
 
-    protected function configure(): void
+    protected function configure()
     {
         $this
             ->addArgument('dir', InputArgument::REQUIRED, 'Diretório a ser servido')

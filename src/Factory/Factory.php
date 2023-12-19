@@ -9,9 +9,9 @@ abstract class Factory
      * Build the object in the factory
      *
      * @param mixed $params
-     * @return object
+     * @return mixed
      */
-    abstract function create(...$params): object;
+    abstract function create(...$params): mixed;
 
     /**
      * Undocumented function
@@ -30,7 +30,7 @@ abstract class Factory
             throw new \Exception("The class {$className} is not instantiable");
         }
 
-        if (!empty($constructor) && empty($method)) {
+        if (!empty($constructor)) {
             $params = $this->getParams($class, '__construct', $paramsValues);
             return $reflection->newInstance(...$params);
         }
@@ -80,7 +80,7 @@ abstract class Factory
                 $reflectionMethod->getDeclaringClass()->isInstantiable() &&
                 !in_array($type, array_keys($values))
             ) {
-                $appConfig = require dirname(__DIR__, 2) . '/config/app.php';
+                $appConfig = require dirname(__DIR__, 1) . '/config/app.php';
 
                 $value = $this->handlerClass(
                     $type,

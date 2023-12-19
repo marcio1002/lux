@@ -3,6 +3,7 @@
 namespace Lux\Commands;
 
 use
+    Lux\Traits\DirectoryTrait,
     Lux\Traits\QuestionTrait,
     Lux\Traits\MessageTrait;
 
@@ -14,14 +15,15 @@ use
 
 class DownloadVideoCommand extends Command
 {
-    use 
+    use
         QuestionTrait,
-        MessageTrait;
+        MessageTrait,
+        DirectoryTrait;
 
     protected static $defaultName = 'video:down';
     protected static $defaultDescription = 'Baixa vídeos em vários protocolos.';
 
-    protected function configure(): void
+    protected function configure()
     {
         $this
             ->addArgument('url', InputArgument::REQUIRED, 'Url do vídeo')
@@ -32,6 +34,9 @@ class DownloadVideoCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $dir = '';
+        $separator = DIRECTORY_SEPARATOR;
+        $url = $input->getArgument('url');
+
         if (!$input->hasParameterOption(['--dir', '-d'], true))
             $dir = trim($this->questionPath('Onde deseja salvar o vídeo? ', $input, $output));
         else
@@ -42,24 +47,19 @@ class DownloadVideoCommand extends Command
         else
             $filename = $input->getOption('filename');
 
-        if (preg_match('/^(~)/', $dir, $match)) {
-            $dir = preg_replace('/^(~)/', $_ENV['PATH_USER'], $dir);
-        }
-
-        if (!is_dir($dir) && strtolower($this->question("Diretório <fg=yellow>$dir</> não existe deseja cria-lo? [S/N] ", $input, $output) == 's')) {
-            shell_exec("mkdir -p $dir");
-        }
+        
+        $dir = $this->homeDirFullPath($dir);
+        
+        $this->questionDir($dir, $input, $output);
 
         if (!is_dir($dir)) {
             $output->writeln($this->error('Diretório inválido'));
             return Command::INVALID;
         }
 
-        $url = $input->getArgument('url');
-
         $output->writeln($this->info('Baixando vídeo...'));
 
-        $destination = $dir . DIRECTORY_SEPARATOR . "$filename.mp4";
+        $destination = "{$dir}{$separator}{$filename}.mp4";
 
         `ffmpeg -protocol_whitelist file,tls,http,https,tcp,crypto,ftp -i '$url' -c copy -bsf:a aac_adtstoasc '$destination' -hide_banner`;
 

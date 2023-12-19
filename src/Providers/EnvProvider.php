@@ -21,13 +21,13 @@ class EnvProvider extends Provider
         if (array_key_exists($os, $system)) {
             $command = $system[$os];
         } else {
-            $command = 'pwd ~';
+            $command = '';
         }
 
-        if (isset($command))
+        if (!empty($command)) {
             $userPath = trim(shell_exec($command));
-
-        $_ENV['PATH_USER'] = $userPath;
+            $_ENV['PATH_USER'] = $userPath;
+        }
     }
 
     public function boot()

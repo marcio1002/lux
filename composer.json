@@ -1,26 +1,27 @@
 {
-  "name": "marcio/lux",
-  "type": "project",
-  "version": "1.1.1",
-  "require": {
-    "symfony/console": "^5.3",
-    "symfony/finder": "^5.4",
-    "vlucas/phpdotenv": "^5.4",
-    "react/http": "^1.6",
-    "react/stream": "^1.2.0"
-  },
-  "authors": [
-    {
-      "name": "Marcio1002",
-      "email": "marcioalemao1999@yahoo.com",
-      "homepage": "https://github.com/marcio1002/lux"
-    }
-  ],
-  "license": "MIT",
-  "autoload": {
-    "psr-4": {
-      "Lux\\": "src"
+    "name": "marcio/lux",
+    "type": "project",
+    "version": "1.1.1",
+    "require": {
+        "php": "^8.1",
+        "symfony/console": "^5.3",
+        "symfony/finder": "^5.4",
+        "vlucas/phpdotenv": "^5.4",
+        "react/http": "^1.6",
+        "react/stream": "^1.2.0"
     },
-    "files": []
-  }
+    "authors": [
+        {
+            "name": "Marcio1002",
+            "email": "marcioalemao1999@yahoo.com",
+            "homepage": "https://github.com/marcio1002/lux"
+        }
+    ],
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Lux\\": "src"
+        },
+        "files": []
+    }
 }
